@@ -23,4 +23,16 @@ stop: ## Stop Docker-project
 build: ## Build Docker-project
 	$(COMPOSE) build --no-cache
 
+ngx-stop: ## Send stop signal
+	$(EXEC_PROXY) nginx -s stop
+
+ngx-quit: ## Send quit signal
+	$(EXEC_PROXY) nginx -s quit
+
+ngx-reload: ## Send reload signal
+	$(EXEC_PROXY) nginx -s reload
+
+ngx-reopen: ## Send reopen signal
+	$(EXEC_PROXY) nginx -s reopen
+
 default: help
