@@ -1,3 +1,7 @@
 ###> local/dev ###
 .idea
 ###< local/dev ###
+
+###> structure ###
+.store
+###< structure ###

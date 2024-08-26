@@ -2,8 +2,10 @@ version: '3.8'
 
 services:
   proxy:
-    container_name: 'dynamic_nginx_proxy'
     build: ./.docker/proxy
+    container_name: proxy
+    env_file:
+      - .env
     volumes:
       - ./.docker/proxy/conf/default.conf:/etc/nginx/conf.d/default.conf:ro
       - ./certificates:/etc/nginx/certificates:ro
@@ -15,6 +17,53 @@ services:
     ports:
       - '80:80'
       - '443:443'
+    restart: always
+    stdin_open: true
+    tty: true
+
+  wireguard:
+    build: ./.docker/wireguard
+    container_name: wireguard
+    env_file:
+      - .env
+    cap_add:
+      - NET_ADMIN
+    volumes:
+      - ./.store/wireguard/config:/config
+    ports:
+      - "5000:5000"
+      - "51820:51820/udp"
+    restart: always
+    stdin_open: true
+    tty: true
+
+  wireguard-ui:
+    build: ./.docker/wireguard-ui
+    container_name: wireguard-ui
+    env_file:
+      - .env
+    depends_on:
+      - wireguard
+    cap_add:
+      - NET_ADMIN
+    network_mode: service:wireguard
+    environment:
+      - SENDGRID_API_KEY
+      - EMAIL_FROM_ADDRESS
+      - EMAIL_FROM_NAME
+      - SESSION_SECRET
+      - WGUI_USERNAME=admin
+      - WGUI_PASSWORD=password
+      - WG_CONF_TEMPLATE
+      - WGUI_MANAGE_START=true
+      - WGUI_MANAGE_RESTART=true
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+    volumes:
+      - ./.store/wireguard/db:/app/db
+      - ./.store/wireguard/config:/etc/wireguard
     restart: always
     stdin_open: true
     tty: true
