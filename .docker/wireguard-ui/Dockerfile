@@ -1,1 +1,0 @@
-FROM ngoduykhanh/wireguard-ui:latest

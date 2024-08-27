@@ -2,6 +2,7 @@ include .env
 
 COMPOSE=docker-compose -f docker-compose.yml
 EXEC_PROXY=$(COMPOSE) exec proxy
+EXEC_NGINX=$(COMPOSE) exec nginx
 
 .DEFAULT_GOAL := help
 
@@ -13,6 +14,11 @@ bash-proxy: ## Run bash (Proxy Nginx)
 
 up: ## Up Docker-project
 	$(COMPOSE) up -d --build --force-recreate
+
+init:
+	$(COMPOSE) exec proxy certbot --nginx --non-interactive --agree-tos -m webmaster@apptune.ru -d apptune.ru
+	$(COMPOSE) exec proxy certbot --nginx --non-interactive --agree-tos -m webmaster@apptune.ru -d vpn.apptune.ru
+	$(COMPOSE) exec proxy nginx -s reload
 
 down: ## Down Docker-project
 	$(COMPOSE) down --remove-orphans
